@@ -25,7 +25,7 @@ class UCS implements Algorithm{
     
     // Constructor
     public UCS(String startWord, String endWord) {
-        this.hashMap = WordChecker.wordList;
+        this.hashMap = DictionaryMapper.dictMap;
         this.visited = new HashSet<>();
         this.EndWord = endWord;
         this.path = new LinkedList<>();
@@ -34,6 +34,26 @@ class UCS implements Algorithm{
         List<String> firstPath = new ArrayList<>();
         firstPath.add(startWord);
         path.add(firstPath);
+    }
+
+    // Process the Words`
+    private void ProcessCurrentWord(String currentWord, List<String> currentPath){
+        
+        visited.add(currentWord);
+
+        // Get all the Processed Words
+        List<String> nextProcessedWords = hashMap.get(currentWord);
+
+        // Save the Node Count
+        NodeCount++;
+
+        // Process Next Words
+        for (String nextWord : nextProcessedWords) {
+            // Save new Path to the Queue
+            List<String> newPath = new ArrayList<>(currentPath); 
+            newPath.add(nextWord);
+            path.add(newPath);
+        }
     }
 
     public List<String> GetResult() {
@@ -55,26 +75,13 @@ class UCS implements Algorithm{
                 return currentPath;
             }
 
-            visited.add(currentWord);
-
-            // Get all the Processed Words
-            List<String> nextProcessedWords = hashMap.get(currentWord);
-
-            // Save the Node Count
-            NodeCount += nextProcessedWords.size();
-
-            // Process Next Words
-            for (String nextWord : nextProcessedWords) {
-                // Save new Path to the Queue
-                List<String> newPath = new ArrayList<>(currentPath); 
-                newPath.add(nextWord);
-                path.add(newPath);
-            }
+            ProcessCurrentWord(currentWord, currentPath);
         }
 
         return null;
     }
 
+    // Return the node that is checked
     public int GetNodeCount(){
         return NodeCount;
     }

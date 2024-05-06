@@ -5,16 +5,22 @@ import java.util.List;
 
 public class ResultPanel extends JPanel {
     private List<String> words;
-    private int times;
+    private double times;
     private int nodes;
+    private long memory;
+    private String algorithm;
     public ResultPanel() {
+    }
+
+    public void setAlgorithm(String alg){
+        this.algorithm = alg;
     }
 
     public void setWords(List<String> result){
         this.words = result;
     }
 
-    public void setTimes(int times){
+    public void setTimes(double times){
         this.times = times;
     }
 
@@ -22,6 +28,9 @@ public class ResultPanel extends JPanel {
         this.nodes = nodes;
     }
 
+    public void setMemory(long memory){
+        this.memory = memory;
+    }
     public void ShowResult() {
         setLayout(new BorderLayout());
     
@@ -29,29 +38,54 @@ public class ResultPanel extends JPanel {
         JLabel headerLabel = new JLabel("RESULT", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 20));
         add(headerLabel, BorderLayout.NORTH);
-    
+        JLabel algLabel = new JLabel(
+            algorithm, SwingConstants.CENTER
+        );
+        algLabel.setFont(new Font("Arial", Font.BOLD, 18));
         // Details
-        JPanel detailsPanel = new JPanel(new GridLayout(2, 1));
-        JLabel timesLabel = new JLabel("Times: " + times);
+        JPanel detailsPanel = new JPanel(new GridLayout(5, 1));
+        JLabel timesLabel = new JLabel("Times: " + times + " Seconds");
+        
         timesLabel.setFont(timesLabel.getFont().deriveFont(Font.BOLD, 16));
         JLabel nodesLabel = new JLabel("Nodes: " + nodes);
         nodesLabel.setFont(nodesLabel.getFont().deriveFont(Font.BOLD, 16));
+        JLabel memoryLabel = new JLabel("Memory Usage: " + memory + " Byte");
+        memoryLabel.setFont(memoryLabel.getFont().deriveFont(Font.BOLD, 16));
+        
+        JLabel PathLengthLabel = new JLabel();
+        if(words != null){
+            PathLengthLabel.setText("Path Length: " + words.size());
+        }else{
+            PathLengthLabel.setText("Path Length: " + 0);
+        }
+        PathLengthLabel.setFont(PathLengthLabel.getFont().deriveFont(Font.BOLD, 16));
+        detailsPanel.add(algLabel);
         detailsPanel.add(timesLabel);
         detailsPanel.add(nodesLabel);
+        detailsPanel.add(memoryLabel);
+        detailsPanel.add(PathLengthLabel);
         detailsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     
         // Words Panel
         JPanel wordsPanel = new JPanel();
-        wordsPanel.setLayout(new BoxLayout(wordsPanel, BoxLayout.Y_AXIS));
-        for (String word : words) {
-            JPanel wordPanel = new JPanel(new GridLayout(1, word.length()));
-            for (int i = 0; i < word.length(); i++) {
-                Square square = new Square(Character.toString(word.charAt(i)), i);
-                wordPanel.add(square);
+        if(words != null){
+            wordsPanel.setLayout(new BoxLayout(wordsPanel, BoxLayout.Y_AXIS));
+            for (String word : words) {
+                JPanel wordPanel = new JPanel(new GridLayout(1, word.length()));
+                for (int i = 0; i < word.length(); i++) {
+                    Square square = new Square(Character.toString(word.charAt(i)), i);
+                    wordPanel.add(square);
+                }
+                wordsPanel.add(wordPanel);
             }
-            wordsPanel.add(wordPanel);
+        
+        }else{
+            JLabel emptyResult = new JLabel(
+                "Result Not Found", SwingConstants.CENTER
+            );
+            emptyResult.setFont(new Font("Arial", Font.BOLD, 18));
+            wordsPanel.add(emptyResult);
         }
-    
         // Scroll Panel
         JScrollPane scrollPanel = new JScrollPane(wordsPanel);
         scrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -64,6 +98,11 @@ public class ResultPanel extends JPanel {
     
         // Add containerPanel to the center of BorderLayout
         add(containerPanel, BorderLayout.CENTER);
+        JPanel emptyPanel = new JPanel();
+        emptyPanel.setOpaque(false);
+        emptyPanel.setPreferredSize(new Dimension(0,40));
+        add(emptyPanel, BorderLayout.SOUTH);
+
     }
 
     private class Square extends JPanel {
@@ -99,7 +138,7 @@ public class ResultPanel extends JPanel {
             int stringHeight = g2d.getFontMetrics().getAscent();
             int x = (getWidth() - stringWidth) / 2;
             int y = (getHeight() + stringHeight) / 2;
-            g2d.drawString(letter, x, y);
+            g2d.drawString(letter.toUpperCase(), x, y);
         }
     }
 }

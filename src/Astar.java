@@ -3,17 +3,21 @@ import java.util.Set;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Comparator;
 
 public class Astar implements Algorithm{
+    // Menyimpan target kata
     private String endWord = "";
+
+    // Menyimpan jumlah kata yang di process
     private int NodeCount;
 
-    private Map<String, List<String>> path;
+    // Menyimpan set of visited atau lebih dikenal sebagai Closed list
     private Set<String> visited;
+    
+    // Menyimpan dictionary yang sudah parser menjadi map
     private Map<String, List<String>> hashMap;
     private PriorityQueue<node> prioqueue;
     
@@ -38,8 +42,7 @@ public class Astar implements Algorithm{
         this.endWord = endWord;
         NodeCount = 0;
         this.visited = new HashSet<>();    
-        this.path = new HashMap<>();
-        this.hashMap = WordChecker.wordList;
+        this.hashMap = DictionaryMapper.dictMap;
         this.prioqueue = new PriorityQueue<node>(Comparator.comparingInt(a -> AstarCalculation(a, endWord)));
     
         // Create the start node with depth 0 and no parent
@@ -51,7 +54,6 @@ public class Astar implements Algorithm{
         // Initialize the path map with the start word
         List<String> firstPath = new ArrayList<>();
         firstPath.add(startWord);
-        this.path.put(startWord, firstPath);
     }
 
     public List<String> GetResult() {
@@ -59,15 +61,19 @@ public class Astar implements Algorithm{
             node currentWord = prioqueue.poll();
             int depth = currentWord.depth;
     
+            // Skip any visited word
+            if(visited.contains(currentWord.word)){
+                continue;
+            }
             visited.add(currentWord.word);
-    
+            
+            // Path Found
             if (currentWord.word.equals(endWord)) {
-                // Path found, construct and return it
                 return node.getPathFromEndToStart(currentWord);
             }
     
             List<String> nextProcessedWords = hashMap.get(currentWord.word);
-            NodeCount += nextProcessedWords.size();
+            NodeCount++;
     
             for (String nextWord : nextProcessedWords) {
                 // Save new Path to the Queue

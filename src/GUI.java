@@ -10,7 +10,7 @@ public class GUI extends JFrame {
     private JPanel mainPanel;
     
 
-    private void createResultPanel(List<String> result, double time, int nodes) {
+    private void createResultPanel(List<String> result, double time, int nodes, long memory, String alg) {
         // Create or update the result panel based on the algorithm results
         // For demonstration purposes, let's assume resultPanel is instantiated here
         if (resultPanel != null) {
@@ -19,6 +19,10 @@ public class GUI extends JFrame {
         resultPanel = new ResultPanel();
         // Add the resultPanel to the mainPanel
         resultPanel.setWords(result);
+        resultPanel.setTimes(time);
+        resultPanel.setNodes(nodes);
+        resultPanel.setMemory(memory);
+        resultPanel.setAlgorithm(alg);
         resultPanel.ShowResult();
         System.out.println("Result Panel Created");
 
@@ -37,35 +41,59 @@ public class GUI extends JFrame {
                 
             case 2: // GREEDY 
                 return new GreedyBFS(startword, endword);
-                
-
             case 3: // ASTAR
                 return new Astar(startword, endword);
         }
         return null;
     }
+    private String AlgortihmDecision(int AlgorithmType){
+        switch (AlgorithmType) {
+            case 1: // UCS
+                return "Uniform Cost Search";
+            case 2: // GREEDY 
+                return "Greedy Best First Search";
+
+            case 3: // ASTAR
+                return "Astar";
+        }
+        return "";
+    }
 
     private void RunAlgorithm(int AlgorithmType){
-        String startWord = startWordField.getText().trim();
-        String endWord = endWordField.getText().trim();
+        String startWord = startWordField.getText().trim().toLowerCase();
+        String endWord = endWordField.getText().trim().toLowerCase();
+        
 
         isResultOk  = InputManager.CheckUserInput(startWord, endWord);
-        long startTime = System.nanoTime();
+        
         if(isResultOk){
+            System.gc();
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            long startTime = System.nanoTime();
+            long memoryBefore = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
             Algorithm alg = AlgortihmDecision(AlgorithmType, startWord, endWord);
             List<String> result = alg.GetResult();
+            if(result == null){
+                ErrorPopup.showError("Result Not Found");
+            }
             int nodes = alg.GetNodeCount();
+            long memoryend = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+            long memoryUsed = memoryend - memoryBefore;
             long endTime = System.nanoTime();
             long elapsedTime = endTime - startTime;
             double elapsedTimeInSeconds = elapsedTime / 1_000_000_000.0; 
-            createResultPanel(result, elapsedTimeInSeconds, nodes);
+            String algTitle = AlgortihmDecision(AlgorithmType);
+            createResultPanel(result, elapsedTimeInSeconds, nodes, memoryUsed, algTitle);
         }
     }
 
     public GUI() {
         super("Wordladder");
-        WordChecker.load();
-        
     }
 
     public void ShowGUI(){
@@ -129,6 +157,7 @@ public class GUI extends JFrame {
         JButton ucsButton = new JButton("UCS");
         JButton aStarButton = new JButton("A*");
         JButton greedyBFSButton = new JButton("Greedy BFS");
+
         inputPanel.add(ucsButton, gbc);
         gbc.gridx++;
         inputPanel.add(aStarButton, gbc);
@@ -136,11 +165,11 @@ public class GUI extends JFrame {
         inputPanel.add(greedyBFSButton, gbc);
 
         // Result Text Area
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 3;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weighty = 1.0;
+        // gbc.gridy++;
+        // gbc.gridx = 0;
+        // gbc.gridwidth = 3;
+        // gbc.fill = GridBagConstraints.BOTH;
+        // gbc.weighty = 1.0;
         
 
         // Action Listeners 

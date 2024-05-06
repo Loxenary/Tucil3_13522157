@@ -34,6 +34,10 @@ class InputManager{
             ErrorPopup.showError("the Lenght of Start Word and End Word must be same");
             return false;
         }
+        if(startWord.equals(endWord)){
+            ErrorPopup.showError("Gaboleh Bang, harus beda startword ama endwordnya");
+            return false; 
+        }
         return true;
     }   
     
@@ -42,6 +46,6 @@ class InputManager{
     }
 
     private static boolean isWordExist(String word){
-        return WordChecker.isWordExist(word);
+        return DictionaryMapper.isWordExist(word);
     }
 }
